@@ -1,0 +1,55 @@
+MobileNetV2:
+### Training Setup
+
+The experiment was conducted on a Google Colab instance equipped with an NVIDIA T4 GPU. The model was implemented using the TensorFlow framework with the Keras API.
+
+### 1. Dataset and Preprocessing
+
+The model was trained on a custom video dataset for binary action classification, with two classes: **punch** and **non_punch**. Videos were processed by extracting the first **10 frames** of each clip. If a video contained fewer than 10 frames, the sequence was padded to the required length with black frames.
+
+Each frame underwent the following preprocessing steps:
+1.  **Resizing:** All frames were resized to $224 \times 224$ pixels.
+2.  **Color Conversion:** The color space was converted from BGR to RGB.
+3.  **Normalization:** The frames were normalized using the `preprocess_input` function specific to MobileNetV2, which scales pixel values to the range $[-1, 1]$.
+
+The dataset was split into training (70%), validation (15%), and testing (15%) sets. A stratified sampling strategy was employed to ensure that the class distribution was preserved across all splits.
+
+
+### 2. Model Architecture and Training
+
+
+
+Our action recognition model uses a convolutional-recurrent architecture. A **MobileNetV2** model, pre-trained on the ImageNet dataset, serves as the convolutional base. Its weights were **frozen** during training to act as a fixed feature extractor. This base model is wrapped in a `TimeDistributed` layer to process each of the 10 frames in a sequence independently.
+
+The sequence of extracted features is then passed through a stacked **Long Short-Term Memory (LSTM)** network consisting of two layers with 64 and 128 units, respectively. The final classification is performed by a Multi-Layer Perceptron (MLP) head with one hidden layer of 64 units (`ReLU` activation), a `Dropout` layer with a rate of 0.3 for regularization, and a final `softmax` output layer for classification.
+
+The model was compiled using the **Adam optimizer** with default parameters and the **sparse categorical crossentropy** loss function. Training was performed for **10 epochs** with a **batch size of 8**. The primary metric monitored during training was accuracy.
+
+
+### 3. Hyperparameter Summary
+
+The key hyperparameters used in our training setup are summarized in the table below.
+
+| Hyperparameter | Value |
+| :--- | :--- |
+| **Model** | |
+| CNN Base | MobileNetV2 (Pre-trained on ImageNet) |
+| CNN Trainable | False |
+| LSTM Units | [64, 128] |
+| Dropout Rate | 0.3 |
+| **Data** | |
+| Input Image Size | $224 \times 224$ |
+| Sequence Length | 10 frames |
+| **Training** | |
+| Optimizer | Adam |
+| Loss Function | Sparse Categorical Crossentropy |
+| Batch Size | 8 |
+| Epochs | 10 |
+| **Hardware & Software** | |
+| GPU | NVIDIA T4 |
+| Framework | TensorFlow / Keras |
+
+
+
+VGG 19:
+
